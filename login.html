@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign In — AI Roadmap Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f0f4ff;
+      --surface: #ffffff;
+      --surface2: #f8faff;
+      --border: #e1e8ff;
+      --border-active: #6366f1;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      --accent: #6366f1;
+      --accent-light: #818cf8;
+      --accent-cyan: #06b6d4;
+      --accent-green: #10b981;
+      --accent-orange: #f59e0b;
+      --danger: #ef4444;
+      --shadow: 0 4px 24px rgba(99, 102, 241, 0.12);
+      --shadow-lg: 0 20px 60px rgba(99, 102, 241, 0.18);
+      --font: 'Space Grotesk', sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+      --radius: 16px;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Animated background */
+    .bg-canvas {
+      position: fixed; inset: 0; z-index: 0;
+      background: linear-gradient(135deg, #eef2ff 0%, #f0f9ff 40%, #ecfdf5 100%);
+    }
+
+    .bg-blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.5;
+      animation: blobFloat 8s ease-in-out infinite;
+    }
+    .blob-1 { width: 600px; height: 600px; background: radial-gradient(circle, #c7d2fe, #a5b4fc); top: -200px; left: -200px; animation-delay: 0s; }
+    .blob-2 { width: 500px; height: 500px; background: radial-gradient(circle, #bae6fd, #7dd3fc); bottom: -150px; right: -150px; animation-delay: -3s; }
+    .blob-3 { width: 300px; height: 300px; background: radial-gradient(circle, #bbf7d0, #6ee7b7); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -5s; }
+
+    @keyframes blobFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(30px, -20px) scale(1.05); }
+      66% { transform: translate(-20px, 30px) scale(0.95); }
+    }
+
+    /* Grid overlay */
+    .grid-overlay {
+      position: fixed; inset: 0; z-index: 1;
+      background-image: 
+        linear-gradient(rgba(99,102,241,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(99,102,241,0.06) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+
+    /* Floating nodes */
+    .nodes { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+    .node {
+      position: absolute;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      opacity: 0.4;
+      animation: nodePulse 4s ease-in-out infinite;
+    }
+    @keyframes nodePulse {
+      0%, 100% { transform: scale(1); opacity: 0.4; }
+      50% { transform: scale(2); opacity: 0.1; }
+    }
+
+    /* Main container */
+    .auth-container {
+      position: relative; z-index: 10;
+      width: 100%;
+      max-width: 480px;
+      padding: 24px;
+    }
+
+    /* Logo */
+    .logo {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .logo-icon {
+      width: 64px; height: 64px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-cyan));
+      border-radius: 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin-bottom: 12px;
+      box-shadow: 0 8px 32px rgba(99, 102, 241, 0.35);
+      animation: logoFloat 3s ease-in-out infinite;
+    }
+    @keyframes logoFloat {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-6px) rotate(2deg); }
+    }
+    .logo-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.5px;
+    }
+    .logo-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-family: var(--mono);
+      margin-top: 4px;
+    }
+
+    /* Card */
+    .auth-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 40px;
+      box-shadow: var(--shadow-lg);
+      backdrop-filter: blur(20px);
+    }
+
+    /* Tab switcher */
+    .tab-switch {
+      display: flex;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 32px;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      background: none;
+      border-radius: 9px;
+      font-family: var(--font);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab-btn.active {
+      background: var(--surface);
+      color: var(--accent);
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.15);
+    }
+
+    /* Forms */
+    .form-panel { display: none; }
+    .form-panel.active { display: block; }
+
+    .form-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+      letter-spacing: -0.5px;
+    }
+    .form-subtitle {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 28px;
+    }
+
+    .field {
+      margin-bottom: 20px;
+    }
+    .field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      letter-spacing: 0.3px;
+    }
+    .field input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-family: var(--font);
+      font-size: 15px;
+      color: var(--text-primary);
+      background: var(--surface2);
+      transition: all 0.2s;
+      outline: none;
+    }
+    .field input:focus {
+      border-color: var(--accent);
+      background: white;
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    }
+    .field input::placeholder { color: var(--text-muted); }
+
+    /* Submit button */
+    .submit-btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-light));
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-family: var(--font);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+    .submit-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+    }
+    .submit-btn:active { transform: translateY(0); }
+    .submit-btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+
+    /* Error / success messages */
+    .msg {
+      display: none;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 20px;
+    }
+    .msg.error { background: #fef2f2; border: 1px solid #fecaca; color: var(--danger); display: block; }
+    .msg.success { background: #f0fdf4; border: 1px solid #bbf7d0; color: var(--accent-green); display: block; }
+
+    /* Demo hint */
+    .demo-hint {
+      margin-top: 20px;
+      padding: 14px;
+      background: linear-gradient(135deg, #eef2ff, #f0f9ff);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      text-align: center;
+    }
+    .demo-hint strong { color: var(--accent); }
+    .demo-fill {
+      margin-top: 8px;
+      padding: 6px 14px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 12px;
+      font-family: var(--mono);
+      color: var(--accent);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-block;
+    }
+    .demo-fill:hover { background: var(--accent); color: white; }
+
+    /* Features row */
+    .features-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .feature-pill {
+      flex: 1;
+      padding: 10px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    .feature-pill .pill-icon { font-size: 18px; display: block; margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+
+<div class="bg-canvas">
+  <div class="bg-blob blob-1"></div>
+  <div class="bg-blob blob-2"></div>
+  <div class="bg-blob blob-3"></div>
+</div>
+<div class="grid-overlay"></div>
+<div class="nodes" id="nodes"></div>
+
+<div class="auth-container">
+  <!-- Logo -->
+  <div class="logo">
+    <div class="logo-icon">🧠</div>
+    <div class="logo-title">AI Roadmap Generator</div>
+    <div class="logo-sub">// powered by Gemini · ADK</div>
+  </div>
+
+  <!-- Card -->
+  <div class="auth-card">
+    <!-- Tab switch -->
+    <div class="tab-switch">
+      <button class="tab-btn active" onclick="switchTab('login')">Sign In</button>
+      <button class="tab-btn" onclick="switchTab('register')">Create Account</button>
+    </div>
+
+    <!-- Login Form -->
+    <div class="form-panel active" id="loginPanel">
+      <div class="form-title">Welcome back 👋</div>
+      <div class="form-subtitle">Sign in to your learning dashboard</div>
+      <div class="msg" id="loginMsg"></div>
+      <div class="field">
+        <label>Email Address</label>
+        <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email"/>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password"/>
+      </div>
+      <button class="submit-btn" id="loginBtn" onclick="doLogin()">Sign In →</button>
+      <div class="demo-hint">
+        <strong>Demo Account</strong> — try it instantly
+        <br/>
+        <span class="demo-fill" onclick="fillDemo()">Fill demo credentials</span>
+      </div>
+    </div>
+
+    <!-- Register Form -->
+    <div class="form-panel" id="registerPanel">
+      <div class="form-title">Start your journey 🚀</div>
+      <div class="form-subtitle">Create your free learning account</div>
+      <div class="msg" id="registerMsg"></div>
+      <div class="field">
+        <label>Full Name</label>
+        <input type="text" id="regName" placeholder="John Doe"/>
+      </div>
+      <div class="field">
+        <label>Email Address</label>
+        <input type="email" id="regEmail" placeholder="you@example.com"/>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="regPassword" placeholder="Min. 6 characters"/>
+      </div>
+      <button class="submit-btn" id="registerBtn" onclick="doRegister()">Create Account →</button>
+    </div>
+
+    <!-- Feature pills -->
+    <div class="features-row">
+      <div class="feature-pill"><span class="pill-icon">🎯</span>Smart Goals</div>
+      <div class="feature-pill"><span class="pill-icon">📅</span>Scheduling</div>
+      <div class="feature-pill"><span class="pill-icon">🔁</span>Revision</div>
+      <div class="feature-pill"><span class="pill-icon">❤️</span>Burnout Guard</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Animated nodes
+  const nodesEl = document.getElementById('nodes');
+  for (let i = 0; i < 20; i++) {
+    const n = document.createElement('div');
+    n.className = 'node';
+    n.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*4}s;animation-duration:${3+Math.random()*3}s;`;
+    nodesEl.appendChild(n);
+  }
+
+  function switchTab(tab) {
+    document.getElementById('loginPanel').classList.toggle('active', tab === 'login');
+    document.getElementById('registerPanel').classList.toggle('active', tab === 'register');
+    document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', (i===0&&tab==='login')||(i===1&&tab==='register')));
+  }
+
+  function showMsg(id, text, type) {
+    const el = document.getElementById(id);
+    el.textContent = text;
+    el.className = `msg ${type}`;
+  }
+
+  function fillDemo() {
+    document.getElementById('loginEmail').value = 'demo@roadmap.ai';
+    document.getElementById('loginPassword').value = 'demo123';
+    // Auto-register demo account first
+    fetch('/register', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({name: 'Demo User', email: 'demo@roadmap.ai', password: 'demo123'})
+    }).finally(() => {});
+  }
+
+  async function doLogin() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    if (!email || !password) { showMsg('loginMsg', 'Please fill all fields', 'error'); return; }
+    
+    const btn = document.getElementById('loginBtn');
+    btn.disabled = true; btn.textContent = 'Signing in...';
+    
+    try {
+      const res = await fetch('/login', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({email, password})
+      });
+      const data = await res.json();
+      if (data.success) { window.location.href = data.redirect; }
+      else { showMsg('loginMsg', data.error || 'Login failed', 'error'); }
+    } catch (e) {
+      showMsg('loginMsg', 'Network error. Try again.', 'error');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Sign In →';
+    }
+  }
+
+  async function doRegister() {
+    const name = document.getElementById('regName').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const password = document.getElementById('regPassword').value;
+    if (!name || !email || !password) { showMsg('registerMsg', 'Please fill all fields', 'error'); return; }
+    
+    const btn = document.getElementById('registerBtn');
+    btn.disabled = true; btn.textContent = 'Creating account...';
+    
+    try {
+      const res = await fetch('/register', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({name, email, password})
+      });
+      const data = await res.json();
+      if (data.success) { window.location.href = data.redirect; }
+      else { showMsg('registerMsg', data.error || 'Registration failed', 'error'); }
+    } catch (e) {
+      showMsg('registerMsg', 'Network error. Try again.', 'error');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Create Account →';
+    }
+  }
+
+  // Enter key support
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      if (document.getElementById('loginPanel').classList.contains('active')) doLogin();
+      else doRegister();
+    }
+  });
+</script>
+</body>
+</html>
