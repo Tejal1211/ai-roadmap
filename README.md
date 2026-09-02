@@ -21,7 +21,6 @@
 | 📊 Analytics | Track your learning history |
 | 🗂 History | View all past roadmaps |
 
----
 
 ## 📦 Project Structure
 
