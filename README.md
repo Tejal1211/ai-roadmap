@@ -2,7 +2,7 @@
 
 > A production-ready AI agent built with **Gemini 2.0 Flash** + **Flask** that generates fully personalized learning roadmaps. Features user authentication, a creative tech dashboard with sidebar navigation, and full Cloud Run deployment support.
 
----
+
 
 ## ✨ Features
 
