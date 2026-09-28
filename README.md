@@ -7,7 +7,6 @@
 ## ✨ Features
 
 | Feature | Description |
-|---|---|
 | 👤 User Auth | Register / Login with session management |
 | 🎯 Priority Topics | The 20% that gives 80% of results |
 | 🚫 Skip Optimizer | Topics to avoid to save time |
