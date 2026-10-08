@@ -4,7 +4,7 @@
 
 
 
-## ✨ Features
+# ✨ Features
 
 | Feature | Description |
 | 👤 User Auth | Register / Login with session management |
